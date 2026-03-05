@@ -64,4 +64,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 
 # Start the application
 # --workers 2 is a safe default for a personal app; increase for higher load
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 2
