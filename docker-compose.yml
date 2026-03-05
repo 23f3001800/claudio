@@ -1,0 +1,41 @@
+# ════════════════════════════════════════════════════════════════════════════
+# docker-compose.yml — Claude AI Assistant
+# ════════════════════════════════════════════════════════════════════════════
+# Usage:
+#   Start:   docker compose up -d
+#   Logs:    docker compose logs -f
+#   Stop:    docker compose down
+#   Rebuild: docker compose up -d --build
+# ════════════════════════════════════════════════════════════════════════════
+
+version: "3.9"
+
+services:
+
+  # ── Main application ──────────────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: claude_assistant
+    restart: unless-stopped        # Auto-restart on crash or server reboot
+
+    ports:
+      - "8000:8000"                # HOST:CONTAINER — change the left side to use a different host port
+
+    env_file:
+      - .env                       # Load secrets from your .env file (never hardcode these!)
+
+    volumes:
+      # Persist the SQLite database and uploaded files outside the container
+      # so they survive container restarts and image rebuilds.
+      - ./data/db:/app            # SQLite database lives here
+      - ./data/uploads:/app/uploads
+
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
